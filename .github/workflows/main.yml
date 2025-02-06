@@ -28,7 +28,7 @@ jobs:
         git config --global user.email "actions@github.com"
         git add hello.txt
         git commit -m "Add Hello World"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/hfgjgvnjjgg/Legacy.git
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Santoshxlegacy/Grouprandiwale.git
 
     # Keep adding Hello World every 10 minutes (use sleep for 5 minutes in a loop)
     - name: Repeat every 20 minutes
