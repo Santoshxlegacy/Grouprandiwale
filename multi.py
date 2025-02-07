@@ -9,7 +9,7 @@ for script in scripts:
     try:
         process = subprocess.Popen(["python3", script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         processes.append(process)
-        print(f"Started {script} (PID: {process.pid})")
+        print(f"Started the{script} (PID: {process.pid})")
     except Exception as e:
         print(f"Failed to start {script}: {e}")
 
