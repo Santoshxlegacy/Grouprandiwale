@@ -756,7 +756,7 @@ async def run_attack(ip, port, time_duration, update, user_id):
         await update.message.reply_text(f"⚠️ *Attack Error:* {str(e)}", parse_mode="Markdown")
     
 # Default thread value
-default_thread = "900"
+default_thread = "998"
 
 # Command to set thread dynamically
 async def set_thread(update: Update, context: ContextTypes.DEFAULT_TYPE):
