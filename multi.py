@@ -1,7 +1,7 @@
 import subprocess
 
 # List of scripts to ru
-scripts = ["evil.py", "group.py"]
+scripts = ["legacy.py", "vps.py"]
 
 # Start each script in a new process
 processes = []
