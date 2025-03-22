@@ -16,7 +16,7 @@ MONGO_URI = "mongodb+srv://Kamisama:Kamisama@kamisama.m6kon.mongodb.net/"
 DB_NAME = "legacy10"
 COLLECTION_NAME = "users"
 attack_in_progress = False
-ATTACK_TIME_LIMIT = 300  # Maximum attack duration in seconds
+ATTACK_TIME_LIMIT = 30  # Maximum attack duration in seconds
 COINS_REQUIRED_PER_ATTACK = 5  # Coins required for an attack
 ATTACK_COOLDOWN = 60  # Cooldown period in seconds (5 minutes)
 
