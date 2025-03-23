@@ -610,7 +610,7 @@ import asyncio
 from datetime import datetime, timedelta
 
 attack_cooldown = {}  # {user_id: cooldown_end_time}
-COOLDOWN_PERIOD = 600  # Default cooldown = 10 minutes
+COOLDOWN_PERIOD = 60  # Default cooldown = 10 minutes
 
 async def update_attack_timer(context, chat_id, message_id, start_time, duration, ip, port, user_name, user_id):
     while True:
