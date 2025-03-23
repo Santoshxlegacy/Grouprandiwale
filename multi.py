@@ -3,7 +3,7 @@ import subprocess
 # List of scripts to ru
 scripts = ["legacy.py", "vps.py"]
 
-# Start each script in a new process
+# Start each script in new process
 processes = []
 for script in scripts:
     try:
