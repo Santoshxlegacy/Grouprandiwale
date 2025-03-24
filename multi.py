@@ -1,7 +1,7 @@
 import subprocess
 
 # List of scripts to ru
-scripts = ["legacy.py", "h.py", "daku.py"]
+scripts = ["legacy.py", "daku.py"]
 
 # Start each script in new process
 processes = []
