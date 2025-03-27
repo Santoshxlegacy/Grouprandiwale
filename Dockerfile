@@ -1,24 +1,24 @@
 # Ubuntu latest image use karo
 FROM ubuntu:latest  
 
-# Non-interactive mode pe set karo
+# Non-interactive mode set karo
 ENV DEBIAN_FRONTEND=noninteractive  
 
-# Required packages install karo (gcc, python3, pip)
+# Python aur GCC install karo
 RUN apt update && apt install -y gcc python3 python3-pip  
 
-# Python modules install karo
-RUN pip3 install python-telegram-bot
+# Ensure pip is up-to-date
+RUN python3 -m pip install --upgrade pip  
+
+# Required Python modules install karo (telegram bot bhi include hai)
+RUN pip3 install --no-cache-dir requests psutil python-telegram-bot  
 
 # Apna project folder copy karo
 COPY . /app  
 WORKDIR /app  
 
-# Debugging ke liye check karo ki gcc aur python install hua ya nahi
-RUN gcc --version && python3 --version  
-
 # Flooder binary compile karo
-RUN gcc m.c -o legacy
+RUN gcc m.c -o flooder  
 
-# Default command jo chalega jab container run hoga
+# Default command jo chalega jab container start hoga
 CMD ["python3", "vps.py"]
