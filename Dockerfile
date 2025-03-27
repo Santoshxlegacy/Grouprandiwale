@@ -1,21 +1,24 @@
-# Ubuntu latest image use karo
+# Ubuntu base image
 FROM ubuntu:latest  
 
-# Non-interactive mode pe set karo
+# Non-interactive mode set karo
 ENV DEBIAN_FRONTEND=noninteractive  
 
-# Required packages install karo aur errors check karo
-RUN apt update && apt install -y gcc python3 || (cat /var/log/apt/term.log && exit 1)  
+# Python, pip aur dependencies install karo
+RUN apt update && apt install -y python3 python3-pip gcc  
 
-# Apna project folder copy karo
+# Ensure pip is updated
+RUN python3 -m pip install --upgrade pip  
+
+# Force install telegram module (Break System Packages flag use karke)
+RUN pip3 install --break-system-packages python-telegram-bot requests psutil  
+
+# Project folder copy karo
 COPY . /app  
 WORKDIR /app  
-
-# Debugging ke liye check karo ki gcc aur python install hua ya nahi
-RUN gcc --version && python3 --version  
 
 # Flooder binary compile karo
 RUN gcc flooder.c -o flooder  
 
-# Default command jo chalega jab container run hoga
+# Default command jo chalega jab container start hoga
 CMD ["python3", "script.py"]
