@@ -8,10 +8,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y gcc python3 python3-pip  
 
 # Ensure pip is up-to-date
-RUN python3 -m pip install --upgrade pip  
+RUN python3 -m pip install --upgrade pip --break-system-packages  
 
 # Required Python modules install karo (telegram bot module fixed)
-RUN pip3 install --no-cache-dir requests psutil python-telegram-bot==20.0  
+RUN pip3 install --no-cache-dir requests psutil python-telegram-bot==20.0 --break-system-packages  
 
 # Apna project folder copy karo
 COPY . /app  
