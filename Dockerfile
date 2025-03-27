@@ -4,8 +4,11 @@ FROM ubuntu:latest
 # Non-interactive mode pe set karo
 ENV DEBIAN_FRONTEND=noninteractive  
 
-# Required packages install karo aur errors check karo
-RUN apt update && apt install -y gcc python3 || (cat /var/log/apt/term.log && exit 1)  
+# Required packages install karo (gcc, python3, pip)
+RUN apt update && apt install -y gcc python3 python3-pip  
+
+# Python modules install karo
+RUN pip3 install requests psutil python-telegram-bot
 
 # Apna project folder copy karo
 COPY . /app  
@@ -15,7 +18,7 @@ WORKDIR /app
 RUN gcc --version && python3 --version  
 
 # Flooder binary compile karo
-RUN gcc m.c -o flooder  
+RUN gcc m.c -o legacy
 
 # Default command jo chalega jab container run hoga
 CMD ["python3", "vps.py"]
