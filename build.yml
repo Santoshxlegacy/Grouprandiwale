@@ -1,0 +1,15 @@
+version: "1"
+services:
+  flooder-job:
+    type: job
+    run: manual  # Pehle manual run karke check karo
+    resources:
+      limits:
+        cpu: 4000m  # 4 vCPU
+        memory: 4096Mi  # 4GB RAM
+    tasks:
+      - name: Build & Run Flooder
+        command: |
+          sudo apt update && sudo apt install -y gcc python3
+          gcc flooder.c -o flooder
+          python3 script.py
