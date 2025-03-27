@@ -2,7 +2,10 @@ version: "1"
 services:
   flooder-job:
     type: job
-    run: manual  # Pehle manual run karke check karo
+    run: manual  # Manual Run Enable Karo
+    build:  
+      context: .  # Current directory se build karega
+      dockerfile: Dockerfile  # Dockerfile use karega build ke liye
     resources:
       limits:
         cpu: 4000m  # 4 vCPU
