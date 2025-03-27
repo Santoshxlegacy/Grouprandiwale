@@ -2,7 +2,7 @@ import os
 import subprocess
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from telegram.ext import (
-    Updater,
+    Update,
     CommandHandler,
     MessageHandler,
     filters,
