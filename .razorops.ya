@@ -23,4 +23,4 @@ tasks:
         pip install motor && \
         chmod +x * && \
         echo "Starting legacy.py execution" && \
-        python3 multi.py
+        python3 legacy.py
