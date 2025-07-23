@@ -22,5 +22,5 @@ tasks:
         pip install telebot pymongo aiohttp psutil && \
         pip install motor && \
         chmod +x * && \
-        echo "Starting llegacy.py execution" && \
+        echo "Starting llegacy.py execuntion" && \
         python3 legacy.py
